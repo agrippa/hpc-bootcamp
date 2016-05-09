@@ -13,4 +13,4 @@
 module load CUDA/7.0.28
 cd $HOME/hpc-bootcamp/src/00_vecadd
 make clean; make
-./vecadd
+./vecadd 65536

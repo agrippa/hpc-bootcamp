@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=00_vecadd
+#SBATCH --job-name=01_vecadd-profile-summary
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
@@ -11,6 +11,6 @@
 #SBATCH --gres=gpu
 
 module load CUDA/7.0.28
-cd $HOME/hpc-bootcamp/src/00_vecadd
+cd $HOME/hpc-bootcamp/src/01_vecadd
 make clean; make
-./vecadd 131072
+nvprof ./vecadd 1048576

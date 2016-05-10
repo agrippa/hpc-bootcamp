@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=00_vecadd
+#SBATCH --job-name=00_vecadd-profile-summary
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
@@ -13,4 +13,4 @@
 module load CUDA/7.0.28
 cd $HOME/hpc-bootcamp/src/00_vecadd
 make clean; make
-nvprof ./vecadd 65536
+nvprof ./vecadd 131072

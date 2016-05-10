@@ -1,0 +1,2 @@
+Spec,AMD (Vega GPU),NVIDIA (Pascal),Intel Phi (KNL),AMD (Zen CPU),Intel (Broadwell)
+64-bit GFLOPS,8396.8,5427.2,3072,512,512

@@ -1,0 +1,2 @@
+Spec,AMD (Vega GPU),NVIDIA (Pascal),Intel Phi (KNL),AMD (Zen CPU),Intel (Broadwell)
+Power (Watts),,300,200,250,180

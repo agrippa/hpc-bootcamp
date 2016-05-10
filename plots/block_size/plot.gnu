@@ -2,8 +2,9 @@ set terminal pdf enhanced
 set output 'naive_vecadd.pdf'
 set datafile separator ','
 
+# set logscale x
 set key top left
-set xlabel 'Array Size'
+set xlabel 'Block Size'
 set ylabel 'Execution Time (microseconds)'
 set xtics rotate
 

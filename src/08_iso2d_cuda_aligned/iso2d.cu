@@ -73,6 +73,8 @@ int main( int argc, char *argv[] ) {
     return 1;
 #endif
 
+    CHECK(cudaThreadSetCacheConfig(cudaFuncCachePreferNone));
+
     setup_config(&conf, argc, argv);
     init_progress(conf.progress_width, conf.nsteps, conf.progress_disabled);
 

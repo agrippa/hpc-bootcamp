@@ -48,6 +48,7 @@
 static void fwd(TYPE *next, TYPE *curr, TYPE *vsq,
         TYPE *c_coeff, int nx, int ny, int dimx, int dimy, int radius) {
 
+#pragma omp parallel for collapse(2)
     for (int y = 0; y < ny; y++) {
         for (int x = 0; x < nx; x++) {
             int this_offset = POINT_OFFSET(x, y, dimx, radius);

@@ -12,7 +12,7 @@
 cd $HOME/hpc-bootcamp/src/02_iso2d_seq
 make clean; make
 echo Running Sequential Version
-./iso2d_seq -x 1048 -y 1048 -i 800 -t
+./iso2d_seq -x 1024 -y 1024 -i 800 -t
 echo
 echo Running Parallel Version
-./iso2d_omp -x 1048 -y 1048 -i 800 -t
+./iso2d_omp -x 1024 -y 1024 -i 800 -t

@@ -47,7 +47,7 @@ void init_data(TYPE *curr, TYPE *next, TYPE *vsq,
 
 void usage(char **argv) {
     fprintf(stderr, "usage: %s [-v] [-x nx] [-y ny] [-i iters] "
-            "[-t text] [-p x,y,f] [-r radius] [-g ngpus] [-w progress_width]\n",
+            "[-t] [-p x,y,f] [-r radius] [-g ngpus] [-w progress_width]\n",
             argv[0]);
     exit(1);
 }

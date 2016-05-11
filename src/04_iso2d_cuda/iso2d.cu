@@ -48,6 +48,12 @@
 static void fwd(TYPE *next, TYPE *curr, TYPE *vsq,
         TYPE *c_coeff, int nx, int ny, int dimx, int dimy, int radius) {
 
+    /*
+     * TODO Extract the body of this parallel region in to a __global__ function
+     * to execute on the GPU. Use thread coordinates to emulate the nested
+     * parallel for loops below.
+     */
+#pragma omp parallel for collapse(2)
     for (int y = 0; y < ny; y++) {
         for (int x = 0; x < nx; x++) {
             int this_offset = POINT_OFFSET(x, y, dimx, radius);
@@ -100,24 +106,47 @@ int main( int argc, char *argv[] ) {
 
     init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
 
+    /*
+     * TODO Allocate space on the device for copies of curr, next, vsq, and
+     * c_coeff.
+     * TODO Transfer the contents of curr, next, vsq, and c_coeff to their
+     * device copies.
+     */
     double start = seconds();
     for (int step = 0; step < conf.nsteps; step++) {
         for (int src = 0; src < conf.nsrcs; src++) {
             if (conf.srcs[src].t > step) continue;
             int src_offset = POINT_OFFSET(conf.srcs[src].x, conf.srcs[src].y,
                     dimx, conf.radius);
+            /*
+             * TODO Rather than writing directly to curr here in host memory,
+             * perform a cudaMemcpy that updates the corresponding location in
+             * device memory with the correct value.
+             */
             curr[src_offset] = srcs[src][step];
         }
 
+        /*
+         * TODO Instead of calling the host function here, perform a parallel
+         * CUDA kernel launch.
+         */
         fwd(next, curr, vsq, c_coeff, conf.nx, conf.ny, dimx, dimy,
                 conf.radius);
 
+        /*
+         * TODO Make sure to swap the device pointers rather than the host
+         * pointers here.
+         */
         TYPE *tmp = next;
         next = curr;
         curr = tmp;
 
         update_progress(step + 1);
     }
+    /*
+     * TODO Transfer the contents of the device copy of curr from the device and
+     * back to the host copy of curr for outputting.
+     */
     double elapsed_s = seconds() - start;
 
     float point_rate = (float)conf.nx * conf.ny / (elapsed_s / conf.nsteps);
@@ -135,6 +164,6 @@ int main( int argc, char *argv[] ) {
         free(srcs[i]);
     }
     free(srcs);
-    
+
     return 0;
 }

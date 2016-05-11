@@ -43,6 +43,4 @@ extern TYPE **sample_sources(source *srcs, int nsrcs, int nsteps, TYPE dt);
 
 extern void init_progress(int length, int goal, int disabled);
 extern void update_progress(int progress);
-extern void finish_progress();
-
 #endif // COMMON_H

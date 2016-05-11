@@ -34,10 +34,7 @@
 #include "common.h"
 #include <math.h>
 
-static char *progress_buffer = NULL;
-static int progress_length = -1;
 static int progress_goal = -1;
-static int progress_num_ticks = -1;
 static int progress_disabled = 0;
 
 double seconds() {
@@ -143,7 +140,7 @@ TYPE **sample_sources(source *srcs, int nsrcs, int nsteps, TYPE dt) {
 
 void init_progress(int length, int goal, int disabled) {
     int i;
-    if (progress_buffer != NULL) {
+    if (progress_goal > 0) {
         fprintf(stderr, "Progress initialized multiple times\n");
         exit(1);
     }
@@ -157,20 +154,7 @@ void init_progress(int length, int goal, int disabled) {
 
     if (disabled) return;
 
-    progress_buffer = (char *)malloc(sizeof(char) * length);
-    progress_length = length;
     progress_goal = goal;
-    progress_num_ticks = 0;
-
-    progress_buffer[0] = '|';
-    progress_buffer[length + 1] = '|';
-    progress_buffer[length + 2] = '\0';
-
-    for (i = 1; i <= length; i++) {
-        progress_buffer[i] = '-';
-    }
-
-    fprintf(stderr, "%s", progress_buffer);
 }
 
 void update_progress(int progress) {
@@ -180,47 +164,16 @@ void update_progress(int progress) {
         return;
     }
 
-    if (progress_buffer == NULL) {
+    if (progress_goal == -1) {
         fprintf(stderr, "Calling update_progress without having called "
                 "init_progress\n");
         exit(1);
     }
 
     double perc_progress = (double)progress / (double)progress_goal;
-    int ticks = (int)(perc_progress * progress_length);
-    if (ticks > progress_length) {
-        ticks = progress_length;
+    double prev_perc_progress = (double)(progress - 1) / (double)progress_goal;
+    double closest = (int)(perc_progress * 10.0);
+    if (prev_perc_progress * 10.0 < closest) {
+        printf("%2.2f\%\n", closest * 10.0);
     }
-
-    if (ticks < progress_num_ticks) {
-        fprintf(stderr, "Ticks went backwards?\n");
-        exit(1);
-    }
-
-    if (ticks > progress_num_ticks) {
-        for (i = 1; i < 1 + ticks; i++) {
-            progress_buffer[i] = '=';
-        }
-
-        for (i = 0; i < progress_length + 2; i++) {
-            fprintf(stderr, "\b");
-        }
-
-        fprintf(stderr, "%s", progress_buffer);
-    }
-
-    progress_num_ticks = ticks;
 }
-
-void finish_progress() {
-    if (progress_disabled) {
-        return;
-    }
-
-    update_progress(progress_goal);
-    fprintf(stderr, "\n");
-
-    free(progress_buffer);
-}
-
-

@@ -54,10 +54,11 @@ __global__ void vector_add_weirdly_coalesced(int *C, int *A, int *B, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i < N) {
-        const int warp_data_offset = 32 * (i / 32);
+        const int warp_id = (i / 32); // int floor
+        const int warp_data_offset = warp_id * 32;
         const int warp_data_length = N - warp_data_offset >= 32 ? 32 : N - warp_data_offset;
         const int half_warp_data_length = warp_data_length / 2;
-        int offset_in_warp = i % half_warp_data_length;
+        int offset_in_warp = (i - warp_data_offset) % warp_data_length;
         if (offset_in_warp < half_warp_data_length) {
             offset_in_warp = half_warp_data_length + (half_warp_data_length - offset_in_warp) - 1;
         } else {
@@ -132,11 +133,11 @@ int main(int argc, char **argv) {
     CHECK_CUDA(cudaMemcpy(d_B, B, N * sizeof(int), cudaMemcpyHostToDevice));
     CHECK_CUDA(cudaMemset(d_C, 0x00, N * sizeof(int)));
 
+    const int nblocks = (N + threads_per_block - 1) / threads_per_block;
+
     // warm up driver
     vector_add<<<nblocks, threads_per_block>>>(d_C, d_B, d_A, N);
     CHECK_CUDA(cudaDeviceSynchronize());
-
-    const int nblocks = (N + threads_per_block - 1) / threads_per_block;
 
     const unsigned long long aligned_start = current_time_ns();
     vector_add<<<nblocks, threads_per_block>>>(d_C, d_B, d_A, N);

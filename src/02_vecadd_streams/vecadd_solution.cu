@@ -84,10 +84,10 @@ int main(int argc, char **argv) {
         C[i] = 0;
     }
 
-    /*
-     * TODO Create 'ntiles' streams objects by malloc-ing enough heap space and
-     * using cudaStreamCreate on each.
-     */
+    cudaStream_t *streams = (cudaStream_t *)malloc(ntiles * sizeof(cudaStream_t));
+    for (int t = 0; t < ntiles; t++) {
+        CHECK_CUDA(cudaStreamCreate(streams + t));
+    }
 
     const unsigned long long start_device = current_time_ns();
 
@@ -97,12 +97,19 @@ int main(int argc, char **argv) {
         if (tile_end > N) tile_end = N;
         const int tile_size = tile_end - tile_start;
 
-        /*
-         * TODO Convert this to be a cudaMemcpyAsync that uses the t-th stream
-         * created above.
-         */
-        CHECK_CUDA(cudaMemcpy(d_A + tile_start, A + tile_start,
-                    tile_size * sizeof(int), cudaMemcpyHostToDevice));
+        CHECK_CUDA(cudaMemcpyAsync(d_A + tile_start, A + tile_start,
+                    tile_size * sizeof(int), cudaMemcpyHostToDevice,
+                    streams[t]));
+    }
+
+    for (int t = 0; t < ntiles; t++) {
+        const int tile_start = t * tile_size;
+        int tile_end = (t + 1) * tile_size;
+        if (tile_end > N) tile_end = N;
+        const int tile_size = tile_end - tile_start;
+        CHECK_CUDA(cudaMemcpyAsync(d_B + tile_start, B + tile_start,
+                    tile_size * sizeof(int), cudaMemcpyHostToDevice,
+                    streams[t]));
     }
 
     for (int t = 0; t < ntiles; t++) {
@@ -111,26 +118,9 @@ int main(int argc, char **argv) {
         if (tile_end > N) tile_end = N;
         const int tile_size = tile_end - tile_start;
 
-        /*
-         * TODO Convert this to be a cudaMemcpyAsync that uses the t-th stream
-         * created above.
-         */
-        CHECK_CUDA(cudaMemcpy(d_B + tile_start, B + tile_start,
-                    tile_size * sizeof(int), cudaMemcpyHostToDevice));
-    }
-
-    for (int t = 0; t < ntiles; t++) {
-        const int tile_start = t * tile_size;
-        int tile_end = (t + 1) * tile_size;
-        if (tile_end > N) tile_end = N;
-        const int tile_size = tile_end - tile_start;
-
-        /*
-         * TODO Convert this to be a cudaMemcpyAsync that uses the t-th stream
-         * created above.
-         */
-        CHECK_CUDA(cudaMemcpy(d_C + tile_start, C + tile_start,
-                    tile_size * sizeof(int), cudaMemcpyHostToDevice));
+        CHECK_CUDA(cudaMemcpyAsync(d_C + tile_start, C + tile_start,
+                    tile_size * sizeof(int), cudaMemcpyHostToDevice,
+                    streams[t]));
     }
 
     const int nblocks = (N + threads_per_block - 1) / threads_per_block;
@@ -140,13 +130,7 @@ int main(int argc, char **argv) {
         if (tile_end > N) tile_end = N;
         const int tile_size = tile_end - tile_start;
 
-        /*
-         * Add a fourth argument to the <<<...>>> kernel configuration to
-         * indicate that this kernel should be run in stream t, ensuring that
-         * the asynchronous copies launched above in that stream complete before
-         * this kernel works on the data transferred.
-         */
-        vector_add<<<nblocks, threads_per_block, 0>>>(
+        vector_add<<<nblocks, threads_per_block, 0, streams[t]>>>(
                 d_C + tile_start, d_B + tile_start, d_A + tile_start, tile_size,
                 repeat);
     }
@@ -158,12 +142,9 @@ int main(int argc, char **argv) {
         if (tile_end > N) tile_end = N;
         const int tile_size = tile_end - tile_start;
 
-        /*
-         * TODO Convert this to be a cudaMemcpyAsync that uses the t-th stream
-         * created above.
-         */
-        CHECK_CUDA(cudaMemcpy(C + tile_start, d_C + tile_start,
-                    tile_size * sizeof(int), cudaMemcpyDeviceToHost));
+        CHECK_CUDA(cudaMemcpyAsync(C + tile_start, d_C + tile_start,
+                    tile_size * sizeof(int), cudaMemcpyDeviceToHost,
+                    streams[t]));
     }
 
     CHECK_CUDA(cudaDeviceSynchronize());

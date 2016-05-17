@@ -25,13 +25,19 @@
 #include <assert.h>
 #include <common.h>
 
+/*
+ * A CUDA implementation of vector addition: C = A + B
+ */
 __global__ void vector_add(int *C, int *A, int *B, int N) {
     for (int i = 0; i < N; i++) {
         C[i] = A[i] + B[i];
     }
 }
 
-void host_vector_add(int *C, int *A, int *B, int N) {
+/*
+ * A single-threaded CPU implementation of vector addition: C = A + B
+ */
+__host__ void host_vector_add(int *C, int *A, int *B, int N) {
     for (int i = 0; i < N; i++) {
         C[i] = A[i] + B[i];
     }
@@ -63,16 +69,19 @@ int main(int argc, char **argv) {
     }
 
     const unsigned long long start_device = current_time_ns();
+
     // Transfer the contents of the input host arrays on to the device
     CHECK_CUDA(cudaMemcpy(d_A, A, N * sizeof(int), cudaMemcpyHostToDevice));
     CHECK_CUDA(cudaMemcpy(d_B, B, N * sizeof(int), cudaMemcpyHostToDevice));
     // Clear C on the device to be sure there is no stale data
     CHECK_CUDA(cudaMemset(d_C, 0x00, N * sizeof(int)));
 
+    // Launch the GPU version of vector addition
     vector_add<<<1, 1>>>(d_C, d_B, d_A, N);
 
     // Transfer the contents of the output array back to the host
     CHECK_CUDA(cudaMemcpy(C, d_C, N * sizeof(int), cudaMemcpyDeviceToHost));
+
     const unsigned long long end_device = current_time_ns();
 
     // Validate GPU results
@@ -90,7 +99,8 @@ int main(int argc, char **argv) {
 
     printf("Finished! All %d elements validate.\n", N);
     printf("Took %llu microseconds on the host\n", elapsed_host);
-    printf("Took %llu microseconds on the device, %2.5fx speedup\n", elapsed_device, (double)elapsed_host / (double)elapsed_device);
+    printf("Took %llu microseconds on the device, %2.5fx speedup\n",
+            elapsed_device, (double)elapsed_host / (double)elapsed_device);
 
     return 0;
 }

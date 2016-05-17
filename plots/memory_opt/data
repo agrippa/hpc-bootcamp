@@ -1,0 +1,7 @@
+Metric,vector_add,vector_add_read_offset,vector_add_write_offset,vector_add_weirdly_coalesced,vector_add_not_coalesced
+gld_transactions,267988,530593,264684,264908,525168
+gst_transactions,134288,132440,265384,132020,262360
+gld_transactions_per_request,1.022293,2.024052,1.009689,1.010544,2.003357
+gst_transactions_per_request,1.024536,1.010437,2.024719,1.007233,2.001648
+gld_efficiency,0.9782,0.4941,0.9904,0.9896,0.4992
+gst_efficiency,1.0000,1.0000,0.8000,2.0000,0.5000

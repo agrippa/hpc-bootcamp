@@ -1,0 +1,2 @@
+Metric,vector_add,vector_add_read_offset,vector_add_write_offset,vector_add_weirdly_coalesced,vector_add_not_coalesced
+gld_efficiency,0.9782,0.4941,0.9904,0.9896,0.4992

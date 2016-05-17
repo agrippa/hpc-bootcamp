@@ -1,0 +1,2 @@
+Metric,vector_add,vector_add_read_offset,vector_add_write_offset,vector_add_weirdly_coalesced,vector_add_not_coalesced
+gst_efficiency,1.0000,1.0000,0.8000,2.0000,0.5000

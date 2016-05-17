@@ -13,53 +13,53 @@ class Task:
         self.start = self.start - min_time
 
 #    Start  Duration            Grid Size      Block Size     Regs*    SSMem*    DSMem*      Size  Throughput           Device   Context    Stream  Name
-#    254.96ms  1.0502ms                    -               -         -         -         -  6.2915MB  5.9908GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
-#    256.01ms  1.0527ms                    -               -         -         -         -  6.2915MB  5.9766GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
-#    257.07ms  1.0522ms                    -               -         -         -         -  6.2915MB  5.9792GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
-#    258.13ms  1.0526ms                    -               -         -         -         -  6.2915MB  5.9772GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
-#    259.18ms  1.0518ms                    -               -         -         -         -  6.2915MB  5.9817GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
-#    260.24ms  1.0527ms                    -               -         -         -         -  6.2915MB  5.9765GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
-#    261.30ms  1.0521ms                    -               -         -         -         -  6.2915MB  5.9799GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
-#    262.35ms  1.0524ms                    -               -         -         -         -  6.2915MB  5.9783GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
-#    263.41ms  1.0518ms                    -               -         -         -         -  6.2915MB  5.9816GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
-#    264.46ms  1.0556ms                    -               -         -         -         -  6.2915MB  5.9602GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
-#    264.47ms  1.3106ms          (49152 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        13  vector_add(int*, int*, int*, int, int) [118]
-#    265.52ms  1.0532ms                    -               -         -         -         -  6.2915MB  5.9737GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
-#    265.78ms  1.3132ms          (49152 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        14  vector_add(int*, int*, int*, int, int) [125]
-#    266.58ms  1.0551ms                    -               -         -         -         -  6.2915MB  5.9629GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
-#    267.09ms  1.3019ms          (49152 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        15  vector_add(int*, int*, int*, int, int) [132]
-#    268.39ms  1.2832ms          (49152 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        16  vector_add(int*, int*, int*, int, int) [139]
-#    269.68ms  972.68us                    -               -         -         -         -  6.2915MB  6.4682GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy DtoH]
-#    270.66ms  973.51us                    -               -         -         -         -  6.2915MB  6.4627GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy DtoH]
-#    271.64ms  972.45us                    -               -         -         -         -  6.2915MB  6.4697GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy DtoH]
-#    272.61ms  972.90us                    -               -         -         -         -  6.2915MB  6.4667GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy DtoH]
+#    223.36ms  702.00us                    -               -         -         -         -  4.1943MB  5.9748GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
+#    224.07ms  704.47us                    -               -         -         -         -  4.1943MB  5.9539GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
+#    224.78ms  702.90us                    -               -         -         -         -  4.1943MB  5.9671GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
+#    225.49ms  704.05us                    -               -         -         -         -  4.1943MB  5.9574GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
+#    226.19ms  703.54us                    -               -         -         -         -  4.1943MB  5.9617GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
+#    226.90ms  704.85us                    -               -         -         -         -  4.1943MB  5.9506GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
+#    227.61ms  703.25us                    -               -         -         -         -  4.1943MB  5.9642GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
+#    228.32ms  703.73us                    -               -         -         -         -  4.1943MB  5.9601GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
+#    229.02ms  703.25us                    -               -         -         -         -  4.1943MB  5.9642GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy HtoD]
+#    229.73ms  705.01us                    -               -         -         -         -  4.1943MB  5.9493GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy HtoD]
+#    229.74ms  759.78us          (32768 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        13  vector_add(int*, int*, int*, int, int) [118]
+#    230.44ms  707.57us                    -               -         -         -         -  4.1943MB  5.9278GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy HtoD]
+#    230.49ms  759.15us          (32768 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        14  vector_add(int*, int*, int*, int, int) [125]
+#    231.15ms  706.32us                    -               -         -         -         -  4.1943MB  5.9382GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy HtoD]
+#    231.25ms  759.27us          (32768 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        15  vector_add(int*, int*, int*, int, int) [132]
+#    232.01ms  744.81us          (32768 1 1)       (128 1 1)        13        0B        0B         -           -  Tesla M2050 (0)         1        16  vector_add(int*, int*, int*, int, int) [139]
+#    232.76ms  644.69us                    -               -         -         -         -  4.1943MB  6.5059GB/s  Tesla M2050 (0)         1        13  [CUDA memcpy DtoH]
+#    233.41ms  645.75us                    -               -         -         -         -  4.1943MB  6.4953GB/s  Tesla M2050 (0)         1        14  [CUDA memcpy DtoH]
+#    234.06ms  647.64us                    -               -         -         -         -  4.1943MB  6.4763GB/s  Tesla M2050 (0)         1        15  [CUDA memcpy DtoH]
+#    234.71ms  645.75us                    -               -         -         -         -  4.1943MB  6.4953GB/s  Tesla M2050 (0)         1        16  [CUDA memcpy DtoH]
 
 colors = [ 'r', 'y', 'b', 'g', 'c', 'm' ]
 
-min_timestamp = 254.96
-max_timestamp = 272.61 + 0.97290
+min_timestamp = 223.36
+max_timestamp = 234.71 + 0.64575
 
 operations = []
-operations.append((254.96, 1.0502,  13,  '[CUDA memcpy HtoD]'))
-operations.append((256.01, 1.0527,  14,  '[CUDA memcpy HtoD]'))
-operations.append((257.07, 1.0522,  15,  '[CUDA memcpy HtoD]'))
-operations.append((258.13, 1.0526,  16,  '[CUDA memcpy HtoD]'))
-operations.append((259.18, 1.0518,  13,  '[CUDA memcpy HtoD]'))
-operations.append((260.24, 1.0527,  14,  '[CUDA memcpy HtoD]'))
-operations.append((261.30, 1.0521,  15,  '[CUDA memcpy HtoD]'))
-operations.append((262.35, 1.0524,  16,  '[CUDA memcpy HtoD]'))
-operations.append((263.41, 1.0518,  13,  '[CUDA memcpy HtoD]'))
-operations.append((264.46, 1.0556,  14,  '[CUDA memcpy HtoD]'))
-operations.append((264.47, 1.3106,  13,  'vector_add(int*, int*, int*, int, int)'))
-operations.append((265.52, 1.0532,  15,  '[CUDA memcpy HtoD]'))
-operations.append((265.78, 1.3132,  14,  'vector_add(int*, int*, int*, int, int)'))
-operations.append((266.58, 1.0551,  16,  '[CUDA memcpy HtoD]'))
-operations.append((267.09, 1.3019,  15,  'vector_add(int*, int*, int*, int, int)'))
-operations.append((268.39, 1.2832,  16,  'vector_add(int*, int*, int*, int, int)'))
-operations.append((269.68, 0.97268, 13,  '[CUDA memcpy DtoH]'))
-operations.append((270.66, 0.97351, 14,  '[CUDA memcpy DtoH]'))
-operations.append((271.64, 0.97245, 15,  '[CUDA memcpy DtoH]'))
-operations.append((272.61, 0.97290, 16,  '[CUDA memcpy DtoH]'))
+operations.append((223.36, 0.70200,  13,  '[CUDA memcpy HtoD]'))
+operations.append((224.07, 0.70447,  14,  '[CUDA memcpy HtoD]'))
+operations.append((224.78, 0.70290,  15,  '[CUDA memcpy HtoD]'))
+operations.append((225.49, 0.70405,  16,  '[CUDA memcpy HtoD]'))
+operations.append((226.19, 0.70354,  13,  '[CUDA memcpy HtoD]'))
+operations.append((226.90, 0.70485,  14,  '[CUDA memcpy HtoD]'))
+operations.append((227.61, 0.70325,  15,  '[CUDA memcpy HtoD]'))
+operations.append((228.32, 0.70373,  16,  '[CUDA memcpy HtoD]'))
+operations.append((229.02, 0.70325,  13,  '[CUDA memcpy HtoD]'))
+operations.append((229.73, 0.70501,  14,  '[CUDA memcpy HtoD]'))
+operations.append((229.74, 0.75978,  13,  'vector_add(int*, int*, int*, int, int)'))
+operations.append((230.44, 0.70757,  15,  '[CUDA memcpy HtoD]'))
+operations.append((230.49, 0.75915,  14,  'vector_add(int*, int*, int*, int, int)'))
+operations.append((231.15, 0.70632,  16,  '[CUDA memcpy HtoD]'))
+operations.append((231.25, 0.75927,  15,  'vector_add(int*, int*, int*, int, int)'))
+operations.append((232.01, 0.74481,  16,  'vector_add(int*, int*, int*, int, int)'))
+operations.append((232.76, 0.64469,  13,  '[CUDA memcpy DtoH]'))
+operations.append((233.41, 0.64575,  14,  '[CUDA memcpy DtoH]'))
+operations.append((234.06, 0.64764,  15,  '[CUDA memcpy DtoH]'))
+operations.append((234.71, 0.64575,  16,  '[CUDA memcpy DtoH]'))
 
 nstreams = 4
 

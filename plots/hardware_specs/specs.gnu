@@ -38,6 +38,7 @@ unset key
 set ylabel 'Power (Watts)'
 set origin 0.0,0.0
 set yrange [0:320]
+set ytics 0,50,350
 plot 'power.dat' using 2 title col, \
          '' using 3 title col, \
          '' using 4 title col, \

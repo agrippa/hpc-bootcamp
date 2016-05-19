@@ -35,7 +35,8 @@ __global__ void vector_add(int *C, int *A, int *B, int N) {
 }
 
 /*
- * A single-threaded CPU implementation of vector addition: C = A + B
+ * A single-threaded CPU implementation of vector addition: C = A + B. Note that
+ * the __host__ annotation is not required, but is included for clarity here.
  */
 __host__ void host_vector_add(int *C, int *A, int *B, int N) {
     for (int i = 0; i < N; i++) {

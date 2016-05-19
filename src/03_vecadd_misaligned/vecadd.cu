@@ -25,6 +25,10 @@
 #include <assert.h>
 #include <common.h>
 
+/*
+ * The baseline kernel. Run a vector addition where the ith thread reads/writes
+ * the ith element in each array.
+ */
 __global__ void vector_add(int *C, int *A, int *B, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < N) {
@@ -32,6 +36,10 @@ __global__ void vector_add(int *C, int *A, int *B, int N) {
     }
 }
 
+/*
+ * This kernel demonstrates misaligned reads by adding an offset to the reads
+ * performed on A and B.
+ */
 __global__ void vector_add_read_offset(int *C, int *A, int *B, int N, int offset) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int k = i + offset;
@@ -41,6 +49,10 @@ __global__ void vector_add_read_offset(int *C, int *A, int *B, int N, int offset
     }
 }
 
+/*
+ * This kernel demonstrates misaligned writes by adding an offset to the writes
+ * performed on C.
+ */
 __global__ void vector_add_write_offset(int *C, int *A, int *B, int N, int offset) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int k = i + offset;
@@ -50,15 +62,35 @@ __global__ void vector_add_write_offset(int *C, int *A, int *B, int N, int offse
     }
 }
 
+/*
+ * This kernel demonstrates coalesced but not 1:1 accesses. For a given warp of
+ * 32 threads, all threads will access a different four bytes in the same
+ * aligned 128-byte block. However, the access of thread i will not be on
+ * element i in the array.
+ */
 __global__ void vector_add_weirdly_coalesced(int *C, int *A, int *B, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i < N) {
         const int warp_id = (i / 32); // int floor
+        /*
+         * Offset in the arrays of the 128-byte block of memory to be accessed
+         * by this warp
+         */
         const int warp_data_offset = warp_id * 32;
+        /*
+         * # of words to be accessed. This is only not 32 if the size of the
+         * arrays is not evenly divisible by 32.
+         */
         const int warp_data_length = N - warp_data_offset >= 32 ? 32 : N - warp_data_offset;
         const int half_warp_data_length = warp_data_length / 2;
+        // Offset of this thread in this warp.
         int offset_in_warp = (i - warp_data_offset) % warp_data_length;
+        /*
+         * Flip the order of accesses, so that the first thread accesses the
+         * last element, the second thread accesses the second to last element,
+         * etc. There's probably a cleaner way to write this.
+         */
         if (offset_in_warp < half_warp_data_length) {
             offset_in_warp = half_warp_data_length + (half_warp_data_length - offset_in_warp) - 1;
         } else {
@@ -71,6 +103,10 @@ __global__ void vector_add_weirdly_coalesced(int *C, int *A, int *B, int N) {
     }
 }
 
+/*
+ * Demonstrates vector addition with accesses not coalesced, but strided by 2
+ * (and wrapped around).
+ */
 __global__ void vector_add_not_coalesced(int *C, int *A, int *B, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 

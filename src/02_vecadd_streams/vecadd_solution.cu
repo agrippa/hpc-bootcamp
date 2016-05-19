@@ -167,9 +167,11 @@ int main(int argc, char **argv) {
     const unsigned long long elapsed_device = (end_device - start_device) / 1000;
     const unsigned long long elapsed_host = (end_host - start_host) / 1000;
 
-    printf("Finished! All %d elements validate using %d threads per block.\n", N, threads_per_block);
+    printf("Finished! All %d elements validate using %d threads per block.\n",
+            N, threads_per_block);
     printf("Took %llu microseconds on the host\n", elapsed_host);
-    printf("Took %llu microseconds on the device, %2.5fx speedup\n", elapsed_device, (double)elapsed_host / (double)elapsed_device);
+    printf("Took %llu microseconds on the device, %2.5fx speedup\n",
+            elapsed_device, (double)elapsed_host / (double)elapsed_device);
 
     return 0;
 }

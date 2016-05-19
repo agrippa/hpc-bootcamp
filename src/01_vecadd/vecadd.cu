@@ -32,7 +32,7 @@ __global__ void vector_add(int *C, int *A, int *B, int N) {
     }
 }
 
-void host_vector_add(int *C, int *A, int *B, int N) {
+__host__ void host_vector_add(int *C, int *A, int *B, int N) {
     for (int i = 0; i < N; i++) {
         C[i] = A[i] + B[i];
     }

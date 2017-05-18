@@ -1,2 +1,2 @@
-Spec,AMD (Vega GPU),NVIDIA (Pascal),Intel Phi (KNL),AMD (Zen CPU),Intel (Broadwell)
-Memory Bandwidth (GB/s),1024,720,400,204,150
+Spec,AMD (Vega GPU),NVIDIA (Volta),NVIDIA (Pascal),Intel Phi (KNL),AMD (Zen CPU),Intel (Broadwell)
+Memory Bandwidth (GB/s),1024,900,720,400,204,150

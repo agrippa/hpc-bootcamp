@@ -21,7 +21,8 @@ plot 'bandwidth.dat' using 2 title col, \
          '' using 3 title col, \
          '' using 4 title col, \
          '' using 5 title col, \
-         '' using 6 title col
+         '' using 6 title col, \
+         '' using 7 title col
 
 unset key
 set ylabel '64-bit GFLOPS'
@@ -32,7 +33,8 @@ plot 'tflops.dat' using 2 title col, \
          '' using 3 title col, \
          '' using 4 title col, \
          '' using 5 title col, \
-         '' using 6 title col
+         '' using 6 title col, \
+         '' using 7 title col
 
 unset key
 set ylabel 'Power (Watts)'
@@ -43,4 +45,5 @@ plot 'power.dat' using 2 title col, \
          '' using 3 title col, \
          '' using 4 title col, \
          '' using 5 title col, \
-         '' using 6 title col
+         '' using 6 title col, \
+         '' using 7 title col

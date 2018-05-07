@@ -40,13 +40,13 @@
 #include "common.h"
 #include "common2d.h"
 
-#define BDIMX   32
-#define BDIMY   16
+#define BDIM   256
 
 __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, TYPE *c_coeff,
         int nx, int ny, int dimx, int radius) {
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = tid / nx;
+    int x = tid % nx;
     int this_offset = POINT_OFFSET(x, y, dimx, radius);
 
     TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
@@ -68,14 +68,9 @@ int main( int argc, char *argv[] ) {
     setup_config(&conf, argc, argv);
     init_progress(conf.progress_width, conf.nsteps, conf.progress_disabled);
 
-    if (conf.nx % BDIMX != 0) {
-        fprintf(stderr, "Invalid nx configuration, must be an even multiple of "
-                "%d\n", BDIMX);
-        return 1;
-    }
-    if (conf.ny % BDIMY != 0) {
-        fprintf(stderr, "Invalid ny configuration, must be an even multiple of "
-                "%d\n", BDIMY);
+    if ((conf.ny * conf.nx) % BDIM != 0) {
+        fprintf(stderr, "Invalid problem configuration, ny x nx must be an "
+                "even multiple of %d\n", BDIM);
         return 1;
     }
 
@@ -113,8 +108,8 @@ int main( int argc, char *argv[] ) {
     CHECK(cudaMalloc((void **)&d_vsq, nbytes));
     CHECK(cudaMalloc((void **)&d_c_coeff, NUM_COEFF * sizeof(TYPE)));
 
-    dim3 block(BDIMX, BDIMY);
-    dim3 grid(conf.nx / block.x, conf.ny / block.y);
+    dim3 block(BDIM);
+    dim3 grid((conf.nx * conf.ny) / BDIM);
 
     double mem_start = seconds();
 

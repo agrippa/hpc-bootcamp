@@ -50,8 +50,9 @@ static void fwd(TYPE *next, TYPE *curr, TYPE *vsq,
 
     /*
      * TODO Extract the body of this parallel region in to a __global__ function
-     * to execute on the GPU. Use thread coordinates to emulate the nested
-     * parallel for loops below.
+     * to execute on the GPU. Use thread coordinates (e.g. threadIdx.x,
+     * threadIdx.y, blockIdx.x, blockIdx.y) to emulate the nested parallel for
+     * loops below.
      */
 #pragma omp parallel for collapse(2)
     for (int y = 0; y < ny; y++) {

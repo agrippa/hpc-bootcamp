@@ -43,20 +43,22 @@
 #define BDIMX   32
 #define BDIMY   16
 
-__global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, TYPE *c_coeff,
-        int nx, int ny, int dimx, int radius) {
+__constant__ TYPE const_c_coeff[NUM_COEFF];
+
+__global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
+        int dimx, int radius) {
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int this_offset = POINT_OFFSET(x, y, dimx, radius);
 
     TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
-    TYPE div = c_coeff[0] * curr[this_offset];
+    TYPE div = const_c_coeff[0] * curr[this_offset];
     for (int d = 1; d <= radius; d++) {
         int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
         int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
         int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
         int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
-        div += c_coeff[d] * (curr[y_pos_offset] +
+        div += const_c_coeff[d] * (curr[y_pos_offset] +
                 curr[y_neg_offset] + curr[x_pos_offset] +
                 curr[x_neg_offset]);
     }
@@ -107,11 +109,10 @@ int main( int argc, char *argv[] ) {
 
     init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
 
-    TYPE *d_curr, *d_next, *d_vsq, *d_c_coeff;
+    TYPE *d_curr, *d_next, *d_vsq;
     CHECK(cudaMalloc((void **)&d_curr, nbytes));
     CHECK(cudaMalloc((void **)&d_next, nbytes));
     CHECK(cudaMalloc((void **)&d_vsq, nbytes));
-    CHECK(cudaMalloc((void **)&d_c_coeff, NUM_COEFF * sizeof(TYPE)));
 
     dim3 block(BDIMX, BDIMY);
     dim3 grid(conf.nx / block.x, conf.ny / block.y);
@@ -121,8 +122,7 @@ int main( int argc, char *argv[] ) {
     CHECK(cudaMemcpy(d_curr, curr, nbytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_next, next, nbytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_vsq, vsq, nbytes, cudaMemcpyHostToDevice));
-    CHECK(cudaMemcpy(d_c_coeff, c_coeff, NUM_COEFF * sizeof(TYPE),
-                cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpyToSymbol(const_c_coeff, c_coeff, NUM_COEFF * sizeof(TYPE)));
     double start = seconds();
     for (int step = 0; step < conf.nsteps; step++) {
         for (int src = 0; src < conf.nsrcs; src++) {
@@ -133,8 +133,8 @@ int main( int argc, char *argv[] ) {
                         sizeof(TYPE), cudaMemcpyHostToDevice));
         }
 
-        fwd_kernel<<<grid, block>>>(d_next, d_curr, d_vsq, d_c_coeff,
-                conf.nx, conf.ny, dimx, conf.radius);
+        fwd_kernel<<<grid, block>>>(d_next, d_curr, d_vsq, conf.nx, conf.ny,
+                dimx, conf.radius);
         TYPE *tmp = d_next;
         d_next = d_curr;
         d_curr = tmp;
@@ -166,7 +166,6 @@ int main( int argc, char *argv[] ) {
     CHECK(cudaFree(d_curr));
     CHECK(cudaFree(d_next));
     CHECK(cudaFree(d_vsq));
-    CHECK(cudaFree(d_c_coeff));
 
     return 0;
 }

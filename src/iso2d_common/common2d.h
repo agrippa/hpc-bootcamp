@@ -22,16 +22,8 @@ typedef struct _config {
     int progress_disabled;
 } config;
 
-/*
- * Allow different applications to define their custom format through
- * POINT_OFFSET.
- */
-#ifdef PADDING
 
-#define POINT_OFFSET(x, y, dimx, radius) \
-    (((radius) + (y)) * (dimx) + ((TRANSACTION_LEN) + (x)))
-
-#else
+#ifndef POINT_OFFSET
 
 #define POINT_OFFSET(x, y, dimx, radius) \
     (((radius) + (y)) * (dimx) + ((radius) + (x)))

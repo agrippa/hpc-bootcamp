@@ -38,26 +38,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-/*
- * Before tackling this TODO, please read the TODO lower in this file that talks
- * about modifications to dimx.
- *
- * Once you have tackled the below TODO, you will need to modify this macro to
- * account for the change in the number of bytes per row. The POINT_OFFSET
- * macro is used to compute the offset in the curr, next, vsq arrays of an
- * (x, y) coordinate.
- *
- * By default, it computes this by multiplying the offset in the y direction
- * ('radius' rows of padding + 'y' rows) by 'dimx', the size of each row. It
- * then adds an offset of 'radius' elements of padding + 'x' columns.
- *
- * However, with your modifications to the size of each row, it may become
- * necessary to change this offset calculation to account for any additional
- * padding. It also may not be necessary to make changes here, depending on how
- * you approach the problem.
- */
 #define POINT_OFFSET(x, y, dimx, radius) \
-    (((radius) + (y)) * (dimx) + ((radius) + (x)))
+    (((radius) + (y)) * (dimx) + ((TRANSACTION_LEN) + (x)))
 
 #include "common.h"
 #include "common2d.h"
@@ -89,6 +71,9 @@ __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
 
 int main( int argc, char *argv[] ) {
     config conf;
+
+    CHECK(cudaThreadSetCacheConfig(cudaFuncCachePreferNone));
+
     setup_config(&conf, argc, argv);
     init_progress(conf.progress_width, conf.nsteps, conf.progress_disabled);
 
@@ -103,28 +88,18 @@ int main( int argc, char *argv[] ) {
         return 1;
     }
 
+    if (conf.radius > TRANSACTION_LEN) {
+        fprintf(stderr, "Radius must be less than TRANSACTION_LEN to include "
+                "it in dimx padding\n");
+        return 1;
+    }
+
     TYPE dx = 20.f;
     TYPE dt = 0.002f;
 
-    /*
-     * TODO Change dimx below to ensure that each row of curr, next, vsq starts
-     * at a 128-byte aligned boundary.
-     *
-     * The fundamental problem with the current code is that if the following is
-     * not an even multiple of 128 bytes:
-     *
-     *     (conf.nx + 2 * conf.radius) * sizeof(TYPE)
-     *
-     * then all rows of the allocated 2D matrices other than the first are
-     * likely to start on mis-aligned byte boundaries.
-     *
-     * Therefore, the key change to make is to modify dimx such that each row
-     * starts at a 128-byte boundary (i.e. the size of each row is itself a
-     * multiple of 128 bytes).
-     */
-
     // compute the pitch for perfect coalescing
-    size_t dimx = conf.nx + 2*conf.radius;
+    size_t dimx = TRANSACTION_LEN + conf.nx + conf.radius;
+    dimx += (TRANSACTION_LEN - (dimx % TRANSACTION_LEN));
     size_t dimy = conf.ny + 2*conf.radius;
     size_t nbytes = dimx * dimy * sizeof(TYPE);
 

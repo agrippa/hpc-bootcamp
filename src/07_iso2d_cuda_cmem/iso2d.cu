@@ -43,6 +43,15 @@
 #define BDIMX   32
 #define BDIMY   16
 
+/*
+ * TODO Declare a __constant__ array of length NUM_COEFF with elements of type
+ * TYPE to replace the global memory copy of c_coeff.
+ *
+ * You can also delete the c_coeff argument to fwd_kernel. If you use a name
+ * other than c_coeff for your __constant__ array, you will also need to rename
+ * references to c_coeff in fwd_kernel.
+ */
+
 __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, TYPE *c_coeff,
         int nx, int ny, int dimx, int radius) {
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -107,10 +116,15 @@ int main( int argc, char *argv[] ) {
 
     init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
 
+    /*
+     * TODO With a __constant__ c_coeff array declared, you can now delete this
+     * device pointer as well as the global memory allocation for it below.
+     */
     TYPE *d_curr, *d_next, *d_vsq, *d_c_coeff;
     CHECK(cudaMalloc((void **)&d_curr, nbytes));
     CHECK(cudaMalloc((void **)&d_next, nbytes));
     CHECK(cudaMalloc((void **)&d_vsq, nbytes));
+
     CHECK(cudaMalloc((void **)&d_c_coeff, NUM_COEFF * sizeof(TYPE)));
 
     dim3 block(BDIMX, BDIMY);
@@ -121,6 +135,12 @@ int main( int argc, char *argv[] ) {
     CHECK(cudaMemcpy(d_curr, curr, nbytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_next, next, nbytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_vsq, vsq, nbytes, cudaMemcpyHostToDevice));
+    /*
+     * TODO Replace this cudaMemcpy to the old global memory c_coeff with a
+     * cudaMemcpyToSymbol targeting the new __constant__ c_coeff array. The
+     * source of this copy will still be the host c_coeff array, and the number
+     * of bytes copied remains the same as well.
+     */
     CHECK(cudaMemcpy(d_c_coeff, c_coeff, NUM_COEFF * sizeof(TYPE),
                 cudaMemcpyHostToDevice));
     double start = seconds();
@@ -133,6 +153,10 @@ int main( int argc, char *argv[] ) {
                         sizeof(TYPE), cudaMemcpyHostToDevice));
         }
 
+        /*
+         * TODO Since you removed the c_coeff argument to your CUDA kernel,
+         * remove it here as well.
+         */
         fwd_kernel<<<grid, block>>>(d_next, d_curr, d_vsq, d_c_coeff,
                 conf.nx, conf.ny, dimx, conf.radius);
         TYPE *tmp = d_next;
@@ -166,6 +190,9 @@ int main( int argc, char *argv[] ) {
     CHECK(cudaFree(d_curr));
     CHECK(cudaFree(d_next));
     CHECK(cudaFree(d_vsq));
+    /*
+     * TODO You no longer need to free the old c_coeff array.
+     */
     CHECK(cudaFree(d_c_coeff));
 
     return 0;

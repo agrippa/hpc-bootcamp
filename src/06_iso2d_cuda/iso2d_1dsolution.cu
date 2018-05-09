@@ -44,22 +44,22 @@
 
 __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, TYPE *c_coeff,
         int nx, int ny, int dimx, int radius) {
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = tid / nx;
-    int x = tid % nx;
-    int this_offset = POINT_OFFSET(x, y, dimx, radius);
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    const int y = tid / nx;
+    const int x = tid % nx;
+    const int this_offset = POINT_OFFSET(x, y, dimx, radius);
 
-    TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     TYPE div = c_coeff[0] * curr[this_offset];
     for (int d = 1; d <= radius; d++) {
-        int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
-        int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
-        int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
-        int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
+        const int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
+        const int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
+        const int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
+        const int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
         div += c_coeff[d] * (curr[y_pos_offset] +
                 curr[y_neg_offset] + curr[x_pos_offset] +
                 curr[x_neg_offset]);
     }
+    const TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     next[this_offset] = temp + div * vsq[this_offset];
 }
 

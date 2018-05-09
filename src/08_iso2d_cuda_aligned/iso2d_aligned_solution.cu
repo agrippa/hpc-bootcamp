@@ -51,21 +51,22 @@ __constant__ TYPE const_c_coeff[NUM_COEFF];
 
 __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
         int dimx, int radius) {
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int this_offset = POINT_OFFSET(x, y, dimx, radius);
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int this_offset = POINT_OFFSET(x, y, dimx, radius);
 
-    TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     TYPE div = const_c_coeff[0] * curr[this_offset];
     for (int d = 1; d <= radius; d++) {
-        int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
-        int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
-        int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
-        int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
+        const int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
+        const int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
+        const int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
+        const int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
         div += const_c_coeff[d] * (curr[y_pos_offset] +
                 curr[y_neg_offset] + curr[x_pos_offset] +
                 curr[x_neg_offset]);
     }
+
+    const TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     next[this_offset] = temp + div * vsq[this_offset];
 }
 
@@ -98,7 +99,7 @@ int main( int argc, char *argv[] ) {
     TYPE dt = 0.002f;
 
     // compute the pitch for perfect coalescing
-    size_t dimx = TRANSACTION_LEN + conf.nx + conf.radius;
+    size_t dimx = conf.nx + 2*conf.radius;
     dimx += (TRANSACTION_LEN - (dimx % TRANSACTION_LEN));
     size_t dimy = conf.ny + 2*conf.radius;
     size_t nbytes = dimx * dimy * sizeof(TYPE);

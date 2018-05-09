@@ -42,19 +42,17 @@
  * Before tackling this TODO, please read the TODO lower in this file that talks
  * about modifications to dimx.
  *
- * Once you have tackled the below TODO, you will need to modify this macro to
- * account for the change in the number of bytes per row. The POINT_OFFSET
- * macro is used to compute the offset in the curr, next, vsq arrays of an
- * (x, y) coordinate.
+ * Once you have tackled the below TODO, you will need to modify this macro so
+ * that the zeroth element in each row starts at an even multiple of 128 bytes.
+ * The POINT_OFFSET macro is used to compute the offset in the curr, next, vsq
+ * arrays of an (x, y) coordinate. Please note that x and y may be negative when
+ * passed to this macro.
  *
  * By default, it computes this by multiplying the offset in the y direction
  * ('radius' rows of padding + 'y' rows) by 'dimx', the size of each row. It
- * then adds an offset of 'radius' elements of padding + 'x' columns.
- *
- * However, with your modifications to the size of each row, it may become
- * necessary to change this offset calculation to account for any additional
- * padding. It also may not be necessary to make changes here, depending on how
- * you approach the problem.
+ * then adds an offset of 'radius' elements of padding + 'x' columns. However,
+ * given x=0 for any y, the byte alignment is not guaranteed to be 128 bytes
+ * even if rows are always a multiple of 128 bytes because of the radius offset.
  */
 #define POINT_OFFSET(x, y, dimx, radius) \
     (((radius) + (y)) * (dimx) + ((radius) + (x)))
@@ -69,21 +67,22 @@ __constant__ TYPE const_c_coeff[NUM_COEFF];
 
 __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
         int dimx, int radius) {
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int this_offset = POINT_OFFSET(x, y, dimx, radius);
+    const int y = blockIdx.y * blockDim.y + threadIdx.y;
+    const int x = blockIdx.x * blockDim.x + threadIdx.x;
+    const int this_offset = POINT_OFFSET(x, y, dimx, radius);
 
-    TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     TYPE div = const_c_coeff[0] * curr[this_offset];
     for (int d = 1; d <= radius; d++) {
-        int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
-        int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
-        int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
-        int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
+        const int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
+        const int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
+        const int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
+        const int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
         div += const_c_coeff[d] * (curr[y_pos_offset] +
                 curr[y_neg_offset] + curr[x_pos_offset] +
                 curr[x_neg_offset]);
     }
+
+    const TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
     next[this_offset] = temp + div * vsq[this_offset];
 }
 
@@ -111,7 +110,7 @@ int main( int argc, char *argv[] ) {
      * at a 128-byte aligned boundary.
      *
      * The fundamental problem with the current code is that if the following is
-     * not an even multiple of 128 bytes:
+     * not guaranteed to be an even multiple of 128 bytes:
      *
      *     (conf.nx + 2 * conf.radius) * sizeof(TYPE)
      *

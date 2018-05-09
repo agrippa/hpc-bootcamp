@@ -51,18 +51,18 @@ static void fwd(TYPE *next, TYPE *curr, TYPE *vsq,
 #pragma omp parallel for collapse(2)
     for (int y = 0; y < ny; y++) {
         for (int x = 0; x < nx; x++) {
-            int this_offset = POINT_OFFSET(x, y, dimx, radius);
-            TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
+            const int this_offset = POINT_OFFSET(x, y, dimx, radius);
             TYPE div = c_coeff[0] * curr[this_offset];
             for (int d = 1; d <= radius; d++) {
-                int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
-                int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
-                int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
-                int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
+                const int y_pos_offset = POINT_OFFSET(x, y + d, dimx, radius);
+                const int y_neg_offset = POINT_OFFSET(x, y - d, dimx, radius);
+                const int x_pos_offset = POINT_OFFSET(x + d, y, dimx, radius);
+                const int x_neg_offset = POINT_OFFSET(x - d, y, dimx, radius);
                 div += c_coeff[d] * (curr[y_pos_offset] +
                         curr[y_neg_offset] + curr[x_pos_offset] +
                         curr[x_neg_offset]);
             }
+            const TYPE temp = 2.0f * curr[this_offset] - next[this_offset];
             next[this_offset] = temp + div * vsq[this_offset];
         }
     }
@@ -136,6 +136,6 @@ int main( int argc, char *argv[] ) {
         free(srcs[i]);
     }
     free(srcs);
-    
+
     return 0;
 }

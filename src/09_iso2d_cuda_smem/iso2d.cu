@@ -100,11 +100,6 @@ __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
 int main( int argc, char *argv[] ) {
     config conf;
 
-#ifndef PADDING
-    fprintf(stderr, "Must be built with -DPADDING set in the compiler flags\n");
-    return 1;
-#endif
-
     CHECK(cudaThreadSetCacheConfig(cudaFuncCachePreferL1));
 
     setup_config(&conf, argc, argv);

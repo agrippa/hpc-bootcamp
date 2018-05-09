@@ -37,6 +37,10 @@
 #include <math.h>
 #include <sys/time.h>
 #include <unistd.h>
+
+#define POINT_OFFSET(x, y, dimx, radius) \
+    (((radius) + (y)) * (dimx) + ((TRANSACTION_LEN) + (x)))
+
 #include "common.h"
 #include "common2d.h"
 
@@ -81,9 +85,7 @@ __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
 
     __syncthreads();
 
-    TYPE temp = 2.0f * cache[cache_index] - next[this_offset];
     TYPE div = const_c_coeff[0] * cache[cache_index];
-/*
     for (int d = radius; d >= 1; d--) {
         const int y_pos_cache_index = CACHE_INDEX(this_y + d, this_x, radius);
         const int y_neg_cache_index = CACHE_INDEX(this_y - d, this_x, radius);
@@ -93,7 +95,8 @@ __global__ void fwd_kernel(TYPE *next, TYPE *curr, TYPE *vsq, int nx, int ny,
                 cache[y_neg_cache_index] + cache[x_pos_cache_index] +
                 cache[x_neg_cache_index]);
     }
-    */
+
+    const TYPE temp = 2.0f * cache[cache_index] - next[this_offset];
     next[this_offset] = temp + div * vsq[this_offset];
 }
 
@@ -126,7 +129,7 @@ int main( int argc, char *argv[] ) {
     TYPE dt = 0.002f;
 
     // compute the pitch for perfect coalescing
-    size_t dimx = TRANSACTION_LEN + conf.nx + conf.radius;
+    size_t dimx = conf.nx + 2*conf.radius;
     dimx += (TRANSACTION_LEN - (dimx % TRANSACTION_LEN));
     size_t dimy = conf.ny + 2*conf.radius;
     size_t nbytes = dimx * dimy * sizeof(TYPE);

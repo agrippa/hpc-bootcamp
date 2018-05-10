@@ -1,10 +1,15 @@
 #!/usr/bin/python
 import sys
 import time
+import math
 import numpy as np
 import matplotlib
 matplotlib.use('agg')
 
+# TODO 1. Add an import for the numba cuda package
+
+# TODO 2. Decorate kernel to indicate to numba that it should be offloaded to a
+# CUDA device.
 def kernel(nxt, curr, N):
     for i in range(1, N + 1):
         nxt[i] = (curr[i - 1] + curr[i + 1]) / 2.0
@@ -18,6 +23,8 @@ def driver(niters, seed):
 
     start_time = time.time()
     for iter in range(niters):
+        # TODO 3. Select a threads per block and blocks per grid, then use these
+        # values to spawn a CUDA kernel using numba.
         kernel(nxt, curr, len(curr) - 2)
 
         tmp = nxt

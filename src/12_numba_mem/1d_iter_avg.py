@@ -27,9 +27,13 @@ def driver(niters, seed):
     threads_per_block = 256
     blocks_per_grid = math.ceil((len(curr) - 2) / threads_per_block)
 
+    # TODO 1. Transfer the nxt and curr arrays to the CUDA device.
     for iter in range(niters):
+        # TODO 2. Change the arrays passed here to be device arrays rather than
+        # host arrays.
         kernel[blocks_per_grid, threads_per_block](nxt, curr, len(curr) - 2)
 
+        # TODO 3. Swap device arrays instead of host arrays
         tmp = nxt
         nxt = curr
         curr = tmp

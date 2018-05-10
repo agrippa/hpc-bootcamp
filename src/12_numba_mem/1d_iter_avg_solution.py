@@ -27,12 +27,15 @@ def driver(niters, seed):
     threads_per_block = 256
     blocks_per_grid = math.ceil((len(curr) - 2) / threads_per_block)
 
+    d_nxt = cuda.to_device(nxt)
+    d_curr = cuda.to_device(curr)
     for iter in range(niters):
-        kernel[blocks_per_grid, threads_per_block](nxt, curr, len(curr) - 2)
+        kernel[blocks_per_grid, threads_per_block](d_nxt, d_curr, len(curr) - 2)
 
-        tmp = nxt
-        nxt = curr
-        curr = tmp
+        tmp = d_nxt
+        d_nxt = d_curr
+        d_curr = tmp
+    d_curr.copy_to_host(curr)
     elapsed_time = time.time() - start_time
 
     print('Elapsed time for N=' + str(len(seed) - 2) + ', # iters=' +

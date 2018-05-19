@@ -16,6 +16,7 @@ Project: https://github.com/aymericdamien/TensorFlow-Examples/
 
 from __future__ import print_function
 import os
+import time
 
 # User your username on DAVINCI to create a directory for storing the MNIST
 # dataset
@@ -93,6 +94,7 @@ with tf.Session() as sess:
     sess.run(init)
 
     # Iterate for the specified number of epochs
+    start_training_time = time.time()
     for epoch in range(num_epochs):
 
         # Batch the inputs into batches of length 'batch_size' and pass them
@@ -107,6 +109,7 @@ with tf.Session() as sess:
         err = compute_err(loss_op, images, labels, mnist.train.images,
                 mnist.train.labels)
         print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(err))
+    elapsed_training_time = time.time() - start_training_time
 
     # Evaluate the trained model on MNIST testing data
     pred_classes = tf.argmax(logits, axis = 1)
@@ -126,4 +129,5 @@ with tf.Session() as sess:
         if computed_labels[i] == mnist.test.labels[i]:
             count_same += 1
     print(count_same, '/', len(computed_labels), '=',
-            100.0 * float(count_same) / float(len(computed_labels)), '%')
+            100.0 * float(count_same) / float(len(computed_labels)), '%', ',',
+            elapsed_training_time, 's to train')

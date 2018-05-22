@@ -22,4 +22,5 @@ message = tf.placeholder(dtype = tf.string, name = 'message')
 sess = tf.Session()
 
 # Run the op
+print('')
 print(sess.run(message, feed_dict = {message: 'Hello, TensorFlow!'}))

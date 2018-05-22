@@ -1,8 +1,27 @@
-#include "../common/common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
 #include "cublas_v2.h"
+
+#define CHECK_CUDA(call) { \
+    const cudaError_t err = (call); \
+    if (err != cudaSuccess) { \
+        fprintf(stderr, "CUDA ERROR @ %s:%d - %s\n", __FILE__, __LINE__, \
+                cudaGetErrorString(err)); \
+        exit(1); \
+    } \
+}
+
+#define CHECK_CUBLAS(call)                                                     \
+{                                                                              \
+    cublasStatus_t err;                                                        \
+    if ((err = (call)) != CUBLAS_STATUS_SUCCESS)                               \
+    {                                                                          \
+        fprintf(stderr, "Got CUBLAS error %d at %s:%d\n", err, __FILE__,       \
+                __LINE__);                                                     \
+        exit(1);                                                               \
+    }                                                                          \
+}
 
 /*
  * A simple example of performing matrix-vector multiplication using the cuBLAS
@@ -30,7 +49,7 @@ void generate_random_vector(int N, float **outX)
     {
         int r = rand();
         double dr = (double)r;
-        X[i] = (dr / rMax) * 100.0;
+        X[i] = (dr / rMax) * 10.0;
     }
 
     *outX = X;
@@ -39,20 +58,18 @@ void generate_random_vector(int N, float **outX)
 /*
  * Verify that Y = M * X
  */
-static void verify(float *A, float *X, float *Y, int M, int N) {
+static void verify(float *A, float *X, float *Y, int M, int N, float alpha) {
+    double avg_perc_err = 0.0;
     for (int row = 0; row < M; row++) {
         float sum = 0.0f;
         for (int col = 0; col < N; col++) {
-            sum += A[row * N + col] * X[col];
+            sum += alpha * A[row * N + col] * X[col];
         }
 
-        if (sum != Y[row]) {
-            fprintf(stderr, "Value mismatch at Y[%d].\n", row);
-            fprintf(stderr, "Expected = %f\n", sum);
-            fprintf(stderr, "CUBLAS   = %f\n", Y[row]);
-            exit(1);
-        }
+        avg_perc_err += fabs(Y[row] - sum) / sum;
     }
+    avg_perc_err /= (float)M;
+    printf("\n%% error = %f%%\n", 100.0 * avg_perc_err);
 }
 
 /*
@@ -98,14 +115,15 @@ int main(int argc, char **argv)
     generate_random_dense_matrix(M, N, &A);
     generate_random_vector(N, &X);
     Y = (float *)malloc(sizeof(float) * M);
+    memset(Y, 0x00, sizeof(float) * M);
 
     // Create the cuBLAS handle
     CHECK_CUBLAS(cublasCreate(&handle));
 
     // Allocate device memory
-    CHECK(cudaMalloc((void **)&dA, sizeof(float) * M * N));
-    CHECK(cudaMalloc((void **)&dX, sizeof(float) * N));
-    CHECK(cudaMalloc((void **)&dY, sizeof(float) * M));
+    CHECK_CUDA(cudaMalloc((void **)&dA, sizeof(float) * M * N));
+    CHECK_CUDA(cudaMalloc((void **)&dX, sizeof(float) * N));
+    CHECK_CUDA(cudaMalloc((void **)&dY, sizeof(float) * M));
 
     // Transfer inputs to the device
     CHECK_CUBLAS(cublasSetVector(N, sizeof(float), X, 1, dX, 1));
@@ -126,14 +144,14 @@ int main(int argc, char **argv)
 
     printf("...\n");
 
-    verify(A, X, Y, M, N);
+    verify(A, X, Y, M, N, alpha);
 
     free(A);
     free(X);
     free(Y);
 
-    CHECK(cudaFree(dA));
-    CHECK(cudaFree(dY));
+    CHECK_CUDA(cudaFree(dA));
+    CHECK_CUDA(cudaFree(dY));
     CHECK_CUBLAS(cublasDestroy(handle));
 
     return 0;

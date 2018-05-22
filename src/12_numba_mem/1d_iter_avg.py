@@ -25,7 +25,7 @@ def driver(niters, seed):
     start_time = time.time()
 
     threads_per_block = 256
-    blocks_per_grid = math.ceil((len(curr) - 2) / threads_per_block)
+    blocks_per_grid = int(math.ceil((len(curr) - 2) / threads_per_block))
 
     # TODO 1. Transfer the nxt and curr arrays to the CUDA device.
     for iter in range(niters):
@@ -37,6 +37,7 @@ def driver(niters, seed):
         tmp = nxt
         nxt = curr
         curr = tmp
+    # TODO 4. Copy 'd_curr' back to the host into the Numpy array 'curr'.
     elapsed_time = time.time() - start_time
 
     print('Elapsed time for N=' + str(len(seed) - 2) + ', # iters=' +

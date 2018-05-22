@@ -25,7 +25,7 @@ def driver(niters, seed):
     start_time = time.time()
 
     threads_per_block = 256
-    blocks_per_grid = math.ceil((len(curr) - 2) / threads_per_block)
+    blocks_per_grid = int(math.ceil((len(curr) - 2) / threads_per_block))
 
     for iter in range(niters):
         kernel[blocks_per_grid, threads_per_block](nxt, curr, len(curr) - 2)

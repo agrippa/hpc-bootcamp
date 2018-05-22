@@ -11,8 +11,13 @@ matplotlib.use('agg')
 # TODO 2. Decorate kernel to indicate to numba that it should be offloaded to a
 # CUDA device.
 def kernel(nxt, curr, N):
-    for i in range(1, N + 1):
-        nxt[i] = (curr[i - 1] + curr[i + 1]) / 2.0
+    # TODO 3. Change 'kernel' to parallelize the iteration below in the CUDA
+    # style, i.e. by processing a single iteration by each thread. Use
+    # cuda.blockIdx.x, cuda.blockDim.x, and cuda.threadIdx.x to compute a thread
+    # index. Be sure to check for out-of-bounds access by checking the computed
+    # thread ID is less than N (i.e. in the loop bounds below).
+    for i in range(N):
+        nxt[i + 1] = (curr[(i + 1) - 1] + curr[(i + 1) + 1]) / 2.0
 
 
 def driver(niters, seed):
@@ -23,8 +28,10 @@ def driver(niters, seed):
 
     start_time = time.time()
     for iter in range(niters):
-        # TODO 3. Select a threads per block and blocks per grid, then use these
-        # values to spawn a CUDA kernel using numba.
+        # TODO 4. Select a threads per block and blocks per grid, then use
+        # these values to spawn a CUDA kernel using numba. Any value of CUDA
+        # threads/blocks is acceptable, so long as at least N threads are
+        # spawned.
         kernel(nxt, curr, len(curr) - 2)
 
         tmp = nxt

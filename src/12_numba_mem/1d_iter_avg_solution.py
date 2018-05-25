@@ -25,7 +25,7 @@ def driver(niters, seed):
     start_time = time.time()
 
     threads_per_block = 256
-    blocks_per_grid = int(math.ceil((len(curr) - 2) / threads_per_block))
+    blocks_per_grid = int(math.ceil(float(len(curr) - 2) / threads_per_block))
 
     d_nxt = cuda.to_device(nxt)
     d_curr = cuda.to_device(curr)

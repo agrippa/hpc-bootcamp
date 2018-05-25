@@ -1,5 +1,5 @@
 cublas: cublas.cu
-	nvcc -O3 -arch=sm_20 $^ -o $@
+	nvcc -O3 -arch=sm_20 $^ -o $@ -lcublas
 
 cublas_solution: cublas_solution.cu
 	nvcc -O3 -arch=sm_20 $^ -o $@ -lcublas

@@ -114,6 +114,7 @@ int main(int argc, char **argv)
     generate_random_dense_matrix(M, N, &A);
     generate_random_vector(N, &X);
     Y = (float *)malloc(sizeof(float) * M);
+    memset(Y, 0x00, sizeof(float) * M);
 
     /*
      * TODO 1. Declare and create a CUBLAS handle using cublasCreate

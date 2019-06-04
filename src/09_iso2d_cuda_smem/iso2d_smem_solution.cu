@@ -152,7 +152,7 @@ int main( int argc, char *argv[] ) {
     config_sources(&conf.srcs, &conf.nsrcs, conf.nx, conf.ny, conf.nsteps);
     TYPE **srcs = sample_sources(conf.srcs, conf.nsrcs, conf.nsteps, dt);
 
-    init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
+    init_data(curr, next, vsq, c_coeff, dimx, dimy, dimx * sizeof(TYPE), dx, dt);
 
     TYPE *d_curr, *d_next, *d_vsq;
     CHECK(cudaMalloc((void **)&d_curr, nbytes));
@@ -188,6 +188,7 @@ int main( int argc, char *argv[] ) {
         update_progress(step + 1);
     }
     CHECK(cudaDeviceSynchronize());
+    CHECK(cudaGetLastError());
     double compute_s = seconds() - start;
 
     CHECK(cudaMemcpy(curr, d_curr, nbytes, cudaMemcpyDeviceToHost));

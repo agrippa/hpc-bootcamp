@@ -25,15 +25,23 @@ void save_text(TYPE *field, const int dimx, const int dimy,
 
 void init_data(TYPE *curr, TYPE *next, TYPE *vsq,
                 TYPE *h_coeff, const int dimx, const int dimy,
-                const TYPE dx, const TYPE dt) {
+                const size_t pitch, const TYPE dx, const TYPE dt) {
     // init the vsq array -------------------------
-    for (size_t i = 0; i < dimx * dimy; i++) {
-        vsq[i] = 2500. * 2500. * dt * dt; // velocity constant at 2.5 km/s
+    for (size_t i = 0; i < dimy; i++) { // For each row
+        for (size_t j = 0; j < dimx; j++) { // For each column
+            TYPE *ptr = (TYPE *)((char *)vsq + i * pitch) + j;
+            *ptr = 2500. * 2500. * dt * dt; // velocity constant at 2.5 km/s
+        }
     }
     
     // init the pressure arrays -------------------
-    for (size_t i = 0; i < dimx * dimy; i++) {
-        curr[i] = next[i] = 0;
+    for (size_t i = 0; i < dimy; i++) { // For each row
+        for (size_t j = 0; j < dimx; j++) { // For each column
+            TYPE *ptr = (TYPE *)((char *)curr + i * pitch) + j;
+            *ptr = 0;
+            ptr = (TYPE *)((char *)next + i * pitch) + j;
+            *ptr = 0;
+        }
     }
 
     memset(h_coeff, 0, NUM_COEFF * sizeof(TYPE));

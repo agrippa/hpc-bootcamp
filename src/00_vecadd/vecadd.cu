@@ -87,7 +87,10 @@ int main(int argc, char **argv) {
 
     // Validate GPU results
     for (i = 0; i < N; i++) {
-        assert(C[i] == A[i] + B[i]);
+        if (C[i] != A[i] + B[i]) {
+            fprintf(stderr, "Mismatch at index %d: expected %d but got %d\n", i, A[i] + B[i], C[i]);
+            return 1;
+        }
     }
 
     // Run on the host

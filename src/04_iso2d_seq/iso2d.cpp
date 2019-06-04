@@ -98,7 +98,7 @@ int main( int argc, char *argv[] ) {
     config_sources(&conf.srcs, &conf.nsrcs, conf.nx, conf.ny, conf.nsteps);
     TYPE **srcs = sample_sources(conf.srcs, conf.nsrcs, conf.nsteps, dt);
 
-    init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
+    init_data(curr, next, vsq, c_coeff, dimx, dimy, dimx * sizeof(TYPE), dx, dt);
 
     double start = seconds();
     for (int step = 0; step < conf.nsteps; step++) {

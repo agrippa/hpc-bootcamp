@@ -34,7 +34,7 @@ extern void save_text(TYPE *field, const int dimx, const int dimy,
         const int ny, const int nx, const char *filename, int radius);
 extern void init_data(TYPE *curr, TYPE *next, TYPE *vsq,
                 TYPE *h_coeff, const int dimx, const int dimy,
-                const TYPE dx, const TYPE dt);
+                const size_t pitch, const TYPE dx, const TYPE dt);
 extern void usage(char **argv);
 extern void default_config(config *conf);
 extern void setup_config(config *conf, int argc, char **argv);

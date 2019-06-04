@@ -115,7 +115,7 @@ int main( int argc, char *argv[] ) {
     config_sources(&conf.srcs, &conf.nsrcs, conf.nx, conf.ny, conf.nsteps);
     TYPE **srcs = sample_sources(conf.srcs, conf.nsrcs, conf.nsteps, dt);
 
-    init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
+    init_data(curr, next, vsq, c_coeff, dimx, dimy, dimx * sizeof(TYPE), dx, dt);
 
     /*
      * TODO With a __constant__ c_coeff array declared, you can now delete this
@@ -167,6 +167,7 @@ int main( int argc, char *argv[] ) {
         update_progress(step + 1);
     }
     CHECK(cudaDeviceSynchronize());
+    CHECK(cudaGetLastError());
     double compute_s = seconds() - start;
 
     CHECK(cudaMemcpy(curr, d_curr, nbytes, cudaMemcpyDeviceToHost));

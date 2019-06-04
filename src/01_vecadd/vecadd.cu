@@ -69,9 +69,11 @@ int main(int argc, char **argv) {
     }
 
     const unsigned long long start_device = current_time_ns();
+
     // Transfer the contents of the input host arrays on to the device
     CHECK_CUDA(cudaMemcpy(d_A, A, N * sizeof(int), cudaMemcpyHostToDevice));
     CHECK_CUDA(cudaMemcpy(d_B, B, N * sizeof(int), cudaMemcpyHostToDevice));
+    // Clear C on the device to be sure there is no stale data
     CHECK_CUDA(cudaMemset(d_C, 0x00, N * sizeof(int)));
 
     const int nblocks = (N + threads_per_block - 1) / threads_per_block;
@@ -79,6 +81,7 @@ int main(int argc, char **argv) {
 
     // Transfer the contents of the output array back to the host
     CHECK_CUDA(cudaMemcpy(C, d_C, N * sizeof(int), cudaMemcpyDeviceToHost));
+
     const unsigned long long end_device = current_time_ns();
 
     // Validate GPU results
@@ -99,7 +102,8 @@ int main(int argc, char **argv) {
 
     printf("Finished! All %d elements validate using %d threads per block.\n", N, threads_per_block);
     printf("Took %llu microseconds on the host\n", elapsed_host);
-    printf("Took %llu microseconds on the device, %2.5fx speedup\n", elapsed_device, (double)elapsed_host / (double)elapsed_device);
+    printf("Took %llu microseconds on the device, %2.5fx speedup\n",
+            elapsed_device, (double)elapsed_host / (double)elapsed_device);
 
     return 0;
 }

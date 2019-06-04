@@ -105,7 +105,7 @@ int main( int argc, char *argv[] ) {
     config_sources(&conf.srcs, &conf.nsrcs, conf.nx, conf.ny, conf.nsteps);
     TYPE **srcs = sample_sources(conf.srcs, conf.nsrcs, conf.nsteps, dt);
 
-    init_data(curr, next, vsq, c_coeff, dimx, dimy, dx, dt);
+    init_data(curr, next, vsq, c_coeff, dimx, dimy, dimx * sizeof(TYPE), dx, dt);
 
     /*
      * TODO Allocate space on the device for copies of curr, next, vsq, and
